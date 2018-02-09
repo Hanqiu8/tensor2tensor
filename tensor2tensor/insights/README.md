@@ -29,6 +29,9 @@ The models run by server is then configured by a JSON version of the
 InsightsConfiguration protocol buffer.  Using the model trained in the Quick
 Start guide, a sample configuration would be:
 
+Nathan's Note: I had 2 data files in the polymer folder: vocab.ende.8192 and
+vocab.ende. 
+
 ```
 {
   "configuration": [{
