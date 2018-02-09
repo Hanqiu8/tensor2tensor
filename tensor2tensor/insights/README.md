@@ -30,28 +30,28 @@ InsightsConfiguration protocol buffer.  Using the model trained in the Quick
 Start guide, a sample configuration would be:
 
 ```
-  {
-    "configuration": [{
-      "source_language": "en",
-      "target_language": "de",
-      "label": "transformers_wmt32k",
-      "transformer": {
-        "model": "transformer",
-        "model_dir": "/tmp/t2t/train",
-        "data_dir": "/tmp/t2t/data",
-        "hparams": "",
-        "hparams_set": "transformer_base_single_gpu",
-        "problems": "translate_ende_wmt32k"
-      },
-    }]
-    "language": [{
-      "code": "en",
-      "name": "English",
-    },{
-      "code": "de",
-      "name": "German",
-    }]
-  }
+{
+  "configuration": [{
+    "source_language": "en",
+    "target_language": "de",
+    "label": "vocab.ende.8192",
+    "transformer": {
+      "model": "transformer",
+      "model_dir": "/Users/natz/Desktop/cs130_data/tensor2tensor/tensor2tensor/insights/polymer",
+      "data_dir": "/Users/natz/Desktop/cs130_data/tensor2tensor/tensor2tensor/insights/polymer",
+      "hparams": "",
+      "hparams_set": "transformer_base_single_gpu",
+      "problems": "translate_ende_wmt32k"
+    }
+  }],
+ "language": [{
+    "code": "en",
+    "name": "English"
+  },{
+    "code": "de",
+    "name": "German"
+  }] 
+}
 ```
 
 With that saved to `configuration.json`, run the following:
