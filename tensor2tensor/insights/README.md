@@ -26,22 +26,19 @@ popd
 ```
 
 The models run by server is then configured by a JSON version of the
-InsightsConfiguration protocol buffer.  Using the model trained in the Quick
-Start guide, a sample configuration would be:
-
-Nathan's Note: I had 2 data files in the polymer folder: vocab.ende.8192 and
-vocab.ende. 
+InsightsConfiguration protocol buffer.  For instance, a sample configuration
+for the translate_ende_wmt32k problem would be:
 
 ```
 {
   "configuration": [{
     "source_language": "en",
     "target_language": "de",
-    "label": "vocab.ende.8192",
+    "label": "translate_ende",
     "transformer": {
       "model": "transformer",
-      "model_dir": "/Users/natz/Desktop/cs130_data/tensor2tensor/tensor2tensor/insights/polymer",
-      "data_dir": "/Users/natz/Desktop/cs130_data/tensor2tensor/tensor2tensor/insights/polymer",
+      "model_dir": <path to the folder containing the full model>,
+      "data_dir": <path to the data in question. For the translate_ende_wmt32k problem, this directory should hold the vocab.ende.32768 file>,
       "hparams": "",
       "hparams_set": "transformer_base_single_gpu",
       "problems": "translate_ende_wmt32k"
@@ -57,12 +54,15 @@ vocab.ende.
 }
 ```
 
-With that saved to `configuration.json`, run the following:
+Replace the angle brackets with a string containing what is correct for you.
+
+With that saved to `configuration.json`, run the following, again substituting
+anything in angle brackets:
 
 ```
 t2t-insights-server \
-  --configuration=configuration.json \
-  --static_path=`pwd`/tensor2tensor/insights/polymer
+  --configuration=<path to configuration.json> \
+  --static_path=<a static path to tensor2tensor/insights/polymer. The quickest way to do this is to substitute this field with `pwd` and run this command within the polymer directory itself>
 ```
 
 This will bring up a minimal [Flask](http://flask.pocoo.org/) REST service
