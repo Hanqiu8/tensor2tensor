@@ -24,6 +24,7 @@ from flask import send_from_directory
 from gunicorn.app.base import BaseApplication
 from gunicorn.six import iteritems
 from tensor2tensor.insights import transformer_model
+from tensor2tensor.insights import indexing
 
 import tensorflow as tf
 
@@ -133,6 +134,15 @@ def main(_):
       })
     return jsonify({
         "configuration": configuration_list
+    })
+
+  @app.route("/api/corpussearch/", methods=["GET"])
+  def corpus_search():
+    # TODO: should use request.args.get() to obtain parameter values
+    # query_index = indexing.QueryIndex("corpus_index")
+
+    return jsonify({
+        "result": indexing.get_result()
     })
 
   @app.route("/debug", methods=["GET"])

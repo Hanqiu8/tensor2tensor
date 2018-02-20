@@ -15,7 +15,7 @@
 
 """ QueryIndex serves as a wrapper class for the Whoosh library.
 Creating an object of this class will create an indexing file,
-which can be used to effiniciently store query-target pairs
+which can be used to efficiently store query-target pairs
 obtained from a translation model.
 """
 
@@ -76,3 +76,9 @@ class QueryIndex:
             results = s.search(parser, limit=20)
             return results
 
+"""
+this function serves as a temporary dummy funciton and should be replaced.
+this function is currently called by server.corpus_search() api request.
+"""
+def get_result():
+    return "TODO: this is a dummy result and should be replaced."
