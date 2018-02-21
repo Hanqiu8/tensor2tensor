@@ -20,7 +20,9 @@ obtained from a translation model.
 """
 
 import os, os.path
-from whoosh import index, fields, qparser
+from whoosh import index
+from whoosh.fields import *
+from whoosh.qparser import *
 from whoosh.collectors import TimeLimitCollector, TimeLimit
 
 class QueryIndex:
@@ -35,29 +37,30 @@ class QueryIndex:
         if not os.path.exists("indexes"):
             os.mkdir("indexes")
         
-        self.schema = Schema(query=TEXT(stored=True, unique=True), target=TEXT(stored=True))
+        self.schema = Schema(query=TEXT(stored=True), target=TEXT(stored=True))
         
         if index.exists_in("indexes", indexname=name):
-            self.ix = index.open_dir("indexes", indexname)
+            self.ix = index.open_dir("indexes", name)
         else:
-            self.ix = index.create_index(self.schema, indexname=name)
+            self.ix = index.create_in("indexes", self.schema, indexname=name)
     
     """ Adds the query-target pair passed to this method to the
     indexing file this object represents.
     
     If there is already a pair with the passed query in the index,
     that pair is replaced with the one passed to this method.
+    NOTE: This is currently not working as intended.
     
-    Note that these query-targer pairs will always be stored as
+    Note that these query-target pairs will always be stored as
     Unicode.
     
     Args:
        qry, trgt - the pair in question
     """
     def addPair(self, qry, trgt):
-        self.ix.writer.update_document(query=unicode(qry),
-                                       target=unicode(trgt))
-        self.ix.writer.commit()
+        self.ix.writer().add_document(query=unicode(qry),
+                                     target=unicode(trgt))
+        self.ix.writer().commit()
     
     """ Returns a list of query-target pairs that match the search
     query passed to this method. This list is limited to the 20
