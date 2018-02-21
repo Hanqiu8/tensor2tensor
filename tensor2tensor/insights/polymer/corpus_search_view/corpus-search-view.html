@@ -31,7 +31,7 @@ limitations under the License.
 <link rel="import" href="../paper-toggle-button/paper-toggle-button.html">
 <link rel="import" href="../paper-progress/paper-progress.html">
 
-<link rel="import" href="../query_card/query-card.html">
+<link rel="import" href="../query_card_corpus/query-card-corpus.html">
 <link rel="import" href="../translation_result/translation-result.html">
 
 <dom-module id="corpus-search-view">
@@ -43,7 +43,7 @@ limitations under the License.
         @apply --layout-center;
       }
 
-      query-card {
+      query-card-corpus {
         margin: 0px;
         width: 90%;
       }
@@ -94,7 +94,29 @@ limitations under the License.
         tail="{{tailRoute}}"
         data="{{queryData}}">
     </app-route>
-    <div id="search-bar" class="layout horizontal center-center">
+
+    <!-- url parameter is probably wrong AF -->
+   <query-card-corpus
+        route="{{route}}"
+        url="/api/list_models"
+        sub-route="{{subroute}}"
+        model="{{model_}}">
+      <!--
+        Include a text area and actionable button for sending translations.
+      -->
+      <div id="search-bar" class="layout horizontal center-center">
+        <paper-input class="flex" value="{{query_}}" label="translate" id="input">
+        </paper-input>
+        <iron-a11y-keys target="{{input}}" keys="enter" on-keys-pressed="process_index_query_">
+        </iron-a11y-keys>
+        <paper-icon-button id="translate" on-tap="process_index_query_" icon="translate" title="translate">
+        </paper-icon-button>
+      </div>
+      
+    </query-card-corpus> 
+
+    
+<!--     <div id="search-bar" class="layout horizontal center-center">
         <paper-input class="flex" value="{{query_}}" label="index search query" id="input">
         </paper-input>
         <iron-a11y-keys target="{{input}}" keys="enter" on-keys-pressed="process_index_query_">
@@ -102,7 +124,7 @@ limitations under the License.
         <paper-icon-button id="query" on-tap="process_index_query_" icon="translate" title="query">
         </paper-icon-button>
     </div>
-    <div hidden="[[!displayResult]]">
+ -->    <div hidden="[[!displayResult]]">
     	<p>query: {{result_.query}}<p>
     	<p>result: {{result_.response.result}}<p>
     </div>
