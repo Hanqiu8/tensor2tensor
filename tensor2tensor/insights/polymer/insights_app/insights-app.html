@@ -32,6 +32,7 @@ limitations under the License.
 <link rel="import" href="../paper-item/paper-item.html">
 
 <link rel="import" href="../explore_view/explore-view.html">
+<link rel="import" href="../corpus_search_view/corpus-search-view.html">
 
 <dom-module id="insights-app">
   <template>
@@ -108,6 +109,9 @@ limitations under the License.
           <a name="explore" href="/explore">
             <paper-item>Explore</paper-item>
           </a>
+          <a name="corpus-search" href="/corpus-search">
+            <paper-item>Corpus Search</paper-item>
+          </a>
 
           <div class="break"></div>
         </iron-selector>
@@ -123,6 +127,7 @@ limitations under the License.
             <div main-title>
               <iron-pages role="main" selected="[[page]]" selected-item="{{currentPage}}" attr-for-selected="name">
                 <div name ="explore">Explore Translations</div>
+                <div name ="corpus-search">Corpus Search</div>
               </iron-pages>
             </div>
           </app-toolbar>
@@ -130,7 +135,9 @@ limitations under the License.
 
         <iron-pages role="main" selected="[[page]]" selected-item="{{currentPage}}" attr-for-selected="name">
           <explore-view name="explore" route="{{subroute}}"></explore-view>
+          <corpus-search-view name="corpus-search" route="{{subroute}}"></corpus-search-view>
         </iron-pages>
+        
       </app-header-layout>
     </app-drawer-layout>
   </template>
