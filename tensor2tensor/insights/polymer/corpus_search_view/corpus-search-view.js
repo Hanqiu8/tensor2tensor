@@ -68,7 +68,8 @@ class CorpusSearchView extends Polymer.Element {
     this.set('displayResult', true);
 
     console.log(this.result_.response);
-  }
+
+}
 
   ready() {
     super.ready();
