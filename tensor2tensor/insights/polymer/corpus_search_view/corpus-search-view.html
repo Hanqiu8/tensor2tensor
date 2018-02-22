@@ -32,7 +32,6 @@ limitations under the License.
 <link rel="import" href="../paper-progress/paper-progress.html">
 
 <link rel="import" href="../query_card_corpus/query-card-corpus.html">
-<link rel="import" href="../corpus_result/corpus-result.html">
 
 <dom-module id="corpus-search-view">
   <template>
@@ -48,6 +47,11 @@ limitations under the License.
         width: 90%;
       }
 
+      paper-card {
+        margin: 0px;
+        width: 90%;
+      }
+
       div.rule {
         @apply --layout-vertical;
       }
@@ -58,17 +62,13 @@ limitations under the License.
         width: 90%;
       }
 
-      corpus-result {
+      #corpus-result {
         margin: 0px;
         width: 90%;
       }
 
       paper-input {
         padding: 0px 6px;
-      }
-
-      paper-card {
-        width: 100%;
       }
 
       paper-icon-button#clear {
@@ -89,6 +89,7 @@ limitations under the License.
         margin: 24px 0px;
         width: 90%;
       }
+
     </style>
     <!--
       Extract the query information from the url if it exists.
@@ -119,18 +120,6 @@ limitations under the License.
       </div>
       
     </query-card-corpus> 
-    
-    <!-- result section -->
-    <div hidden="[[!displayResult]]">
-      <paper-card>
-        <div class="corpus-result content layout horizontal center-center">
-          <h4>Received query:</h4>
-          {{result_.query}}
-          <h4>Result:</h4>
-          {{result_.response.result}}
-        </div>
-      </paper-card>
-    </div>
 
     <iron-ajax
 		id="translateAjax"
@@ -138,6 +127,21 @@ limitations under the License.
 		handle-as="json"
 		on-response="handleQueryResponse_">
     </iron-ajax>
+    
+    <!-- result section -->
+    <paper-card>
+      <div id="corpus-result" class="content layout horizontal center-center flex">
+        <div id="result-list">
+          <h4>Results</h4>
+
+          <template is="dom-repeat" items="{{result_.response.result}}">
+            <div role="listbox">
+              <paper-item>{{item}}</paper-item>
+            </div>
+          </template>
+        </div>
+      </div>
+    </paper-card>
 
   </template>
   <script src="corpus-search-view.js"></script>
