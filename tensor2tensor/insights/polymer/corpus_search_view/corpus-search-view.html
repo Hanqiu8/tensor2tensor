@@ -90,6 +90,22 @@ limitations under the License.
         width: 90%;
       }
 
+      table {
+        table-layout:fixed;
+        width: 100%;
+      }
+
+      table, th, td {
+          border: 1px solid black;
+          border-collapse: collapse;
+          word-wrap:break-word;
+      }
+      th, td {
+          padding: 5px;
+      }
+      th {
+          text-align: left;
+      }
     </style>
     <!--
       Extract the query information from the url if it exists.
@@ -133,12 +149,19 @@ limitations under the License.
       <div id="corpus-result" class="content layout horizontal center-center flex">
         <div id="result-list">
           <h4>Results</h4>
+          <table>
+            <tr>
+              <th>Source Language</th>
+              <th>Target Language</th>
+            </tr>
 
-          <template is="dom-repeat" items="{{result_.response.result}}">
-            <div role="listbox">
-              <paper-item>{{item}}</paper-item>
-            </div>
-          </template>
+            <template is="dom-repeat" items="{{result_.response.result}}">
+              <tr>
+                <td>{{item.sourcelang}}</td>
+                <td>{{item.targetlang}}</td>
+              </tr>
+            </template>
+          </table>
         </div>
       </div>
     </paper-card>

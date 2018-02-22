@@ -115,7 +115,8 @@ class QueryIndex:
 			# TODO: improve this structure
 			matches = []
 			for i in results:
-				matches.append((i["query"], i["target"]))			
+				matches.append({"sourcelang": i["query"],
+								"targetlang": i["target"]})
 			return matches
 
 """
