@@ -34,6 +34,10 @@ class QueryIndex:
 	
 	Args:
 		name - name of the desired index
+		sourceLangDataFile - filename of a file containing data in the
+			source language.
+		targetLangDataFile - filename of a file containing data in the
+			target language.
 	"""
 
 	"""Data locations, replace with directory to respective language list
@@ -41,10 +45,8 @@ class QueryIndex:
 	
 	Data format expected: translation pair per line in each document 
 	"""
-	ENGLISH_LIST = "./indexedData/europarl-v7.de-en.en"
-	GERMAN_LIST = "./indexedData/europarl-v7.de-en.de"
 
-	def __init__(self,name):
+	def __init__(self,name, sourceLangDataFile, targLangDataFile):
 		if not os.path.exists("indexes"):
 			os.mkdir("indexes")
 		self.schema = Schema(query=TEXT(stored=True), target=TEXT(stored=True))
@@ -52,8 +54,12 @@ class QueryIndex:
 			self.ix = index.open_dir("indexes", name)
 			
 		else:
-			self.ix = index.create_in("indexes", self.schema, indexname=name)
-			self.buildIndex(self.ENGLISH_LIST,self.GERMAN_LIST)
+			if sourceLangDataFile == "" or targLangDataFile == "":
+				print 'Cannot create index without data files. Please provide the file paths in configuration.json'
+			else:
+				self.ix = index.create_in("indexes", self.schema, indexname=name)
+				self.buildIndex(sourceLangDataFile,targLangDataFile)
+
 	
 	""" 
 	On init, if an index doesn't exist, build one
