@@ -32,7 +32,7 @@ limitations under the License.
 <link rel="import" href="../paper-progress/paper-progress.html">
 
 <link rel="import" href="../query_card_corpus/query-card-corpus.html">
-<link rel="import" href="../translation_result/translation-result.html">
+<link rel="import" href="../corpus_result/corpus-result.html">
 
 <dom-module id="corpus-search-view">
   <template>
@@ -58,12 +58,17 @@ limitations under the License.
         width: 90%;
       }
 
-      translation-result {
-        margin: 12px 0px;
+      corpus-result {
+        margin: 0px;
+        width: 90%;
       }
 
       paper-input {
         padding: 0px 6px;
+      }
+
+      paper-card {
+        width: 100%;
       }
 
       paper-icon-button#clear {
@@ -105,7 +110,7 @@ limitations under the License.
         Include a text area and actionable button for sending translations.
       -->
       <div id="search-bar" class="layout horizontal center-center">
-        <paper-input class="flex" value="{{query_}}" label="translate" id="input">
+        <paper-input class="flex" value="{{query_}}" label="search" id="input">
         </paper-input>
         <iron-a11y-keys target="{{input}}" keys="enter" on-keys-pressed="process_index_query_">
         </iron-a11y-keys>
@@ -114,20 +119,19 @@ limitations under the License.
       </div>
       
     </query-card-corpus> 
-
     
-<!--     <div id="search-bar" class="layout horizontal center-center">
-        <paper-input class="flex" value="{{query_}}" label="index search query" id="input">
-        </paper-input>
-        <iron-a11y-keys target="{{input}}" keys="enter" on-keys-pressed="process_index_query_">
-        </iron-a11y-keys>
-        <paper-icon-button id="query" on-tap="process_index_query_" icon="translate" title="query">
-        </paper-icon-button>
+    <!-- result section -->
+    <div hidden="[[!displayResult]]">
+      <paper-card>
+        <div class="corpus-result content layout horizontal center-center">
+          <h4>Received query:</h4>
+          {{result_.query}}
+          <h4>Result:</h4>
+          {{result_.response.result}}
+        </div>
+      </paper-card>
     </div>
- -->    <div hidden="[[!displayResult]]">
-    	<p>query: {{result_.query}}<p>
-    	<p>result: {{result_.response.result}}<p>
-    </div>
+
     <iron-ajax
 		id="translateAjax"
 		url="{{url}}"
