@@ -138,11 +138,11 @@ def main(_):
 
   @app.route("/api/corpussearch/", methods=["GET"])
   def corpus_search():
-    # TODO: should use request.args.get() to obtain parameter values
-    # query_index = indexing.QueryIndex("corpus_index")
-
+    query = request.args.get("query")
+    query_result = indexing.get_result(query)
+	
     return jsonify({
-        "result": indexing.get_result()
+        "result": query_result
     })
 
   @app.route("/debug", methods=["GET"])

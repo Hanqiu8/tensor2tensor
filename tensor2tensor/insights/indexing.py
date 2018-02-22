@@ -83,5 +83,7 @@ class QueryIndex:
 this function serves as a temporary dummy funciton and should be replaced.
 this function is currently called by server.corpus_search() api request.
 """
-def get_result():
-    return "TODO: this is a dummy result and should be replaced."
+def get_result(query):
+    # TODO: do something with this user input query
+    retval = query
+    return retval; # retval should be a string and will be displayed in the web page.
