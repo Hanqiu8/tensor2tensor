@@ -11,6 +11,8 @@ Before using the Insights server, you must install [Bower](https://bower.io/)
 which we use to manage our web component dependencies.  You can easily install
 this with the [Node Package Manager](https://www.npmjs.com/).
 
+You must install [Whoosh](https://pypi.python.org/pypi/Whoosh/), which can be achieved by `pip install whoosh`
+
 ## Setup Instructions
 
 After training a model, such as according to the Quick Start guide, you can run
