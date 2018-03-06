@@ -64,14 +64,34 @@ class QueryIndex:
 	""" 
 	On init, if an index doesn't exist, build one
 	"""
+	
+	""" USE THIS METHOD INSTEAD WHEN YOU WANT THE ENTIRE DATA FILE
+		def buildIndex(self, queryLang, targLang):
+		qFile = open(queryLang, 'r')
+		tFile = open(targLang, 'r')
+		writer = self.ix.writer()
+		
+		allLinesIndexed = False
+		while allLinesIndexed == False:
+			q = unicode(qFile.readline().strip(), "utf-8") #input sanitization
+			t = unicode(tFile.readline().strip(), "utf-8")
+			
+			if q == '' or t == '':
+				allLinesIndexed = False
+			else:
+				writer.add_document(query = q, target = t)
+
+		writer.commit()
+	"""
 
 	def buildIndex(self, queryLang, targLang):
 		qFile = open(queryLang, 'r')
 		tFile = open(targLang, 'r')
 		writer = self.ix.writer()
-		for i in range(100): #small value for now just to test
-			q = unicode(qFile.readline().strip().lower(), "utf-8") #input sanitization with lowercase
-			t = unicode(tFile.readline().strip().lower(), "utf-8")
+		
+		for i in range(10000): #small value for now just to test
+			q = unicode(qFile.readline().strip(), "utf-8") #input sanitization
+			t = unicode(tFile.readline().strip(), "utf-8")
 			writer.add_document(query = q, target = t)
 
 		writer.commit()
@@ -97,34 +117,30 @@ class QueryIndex:
 		self.ix.writer().commit()
 	
 	""" Returns a list of query-target pairs that match the search
-	query passed to this method. This list is limited to the 20
-	most related pairs.
+	query passed to this method. This search is constrained to take
+	at most 30 seconds.
 	
 	Args:
 	   sq - the search query
-	
-	TODO: Allow this to return a more robust number and selection
-	of results from a query
 	"""
 	def searchIndex(self, sq):
-		#NOTE: Perhapse move back to query parser for use of OrGroup group?
 		indexParser = MultifieldParser(["query", "target"], schema=self.schema).parse(unicode(sq))
 		with self.ix.searcher() as s:
-			results = s.search(indexParser)
+			collector = s.collector(limit=None)
+			timed_collector = TimeLimitCollector(collector, timelimit=30.0)
+			
+			try:
+				results = s.search_with_collector(indexParser, timed_collector)
+			except TimeLimit:
+				print 'Search ime limit of 30 seconds exceeded.'
+			
+			hits = timed_collector.results()
+			
 			# Convert result structure into a jsonable list
 			# TODO: improve this structure
 			matches = []
-			for i in results:
+			for i in hits:
 				matches.append({"sourcelang": i["query"],
-								"targetlang": i["target"]})
+								"targetlang": i["target"],
+								"distance": (1.0/i.score)})
 			return matches
-
-"""
-this function serves as a temporary dummy funciton and should be replaced.
-this function is currently called by server.corpus_search() api request.
-"""
-def get_result(query):
-	#TODO: add more advanced and intuitive search functionality i.e. fully utilize the true power of Whoosh
-	myQueryIndex =  QueryIndex("demoIndex")
-	results = myQueryIndex.searchIndex(query)
-	return results
