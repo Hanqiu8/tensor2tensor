@@ -144,3 +144,35 @@ class QueryIndex:
 								"targetlang": i["target"],
 								"distance": (1.0/i.score)})
 			return matches
+
+
+
+""" Returns a list of TFRecords given the data files.
+Args:
+	files - path to data files (support wildcard pattern).
+			e.g. If you want all files in directory "./dir", then do "./dir/*"
+"""
+def getTfRecordsFromFiles(files=""):
+	import tensorflow as tf
+	import glob
+
+	if files is "":
+		files = "/home/osboxes/shared/cs130/project/t2t_data/*00" # TODO: parametize this
+
+	filenames = glob.glob(files);
+	records = []
+
+	for filename in filenames:
+		print "reading file '%s'..." % filename
+		reader = tf.python_io.tf_record_iterator(filename)
+		for raw_record in reader:
+			record = tf.train.Example()
+			record.ParseFromString(raw_record)
+			
+			records.append(record)
+			if len(records) % 10000 == 0:
+				print "read: %d" % len(records)
+				break # TODO remove this line to load all records
+		break # TODO remove this line to load all files
+
+	return records
