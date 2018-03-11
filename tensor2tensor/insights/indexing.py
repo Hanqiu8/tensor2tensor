@@ -27,6 +27,9 @@ from whoosh.fields import *
 from whoosh.qparser import *
 from whoosh.collectors import TimeLimitCollector, TimeLimit
 
+INPUTS_FILE = "inputs.txt"
+TARGETS_FILE = "targets.txt"
+
 class QueryIndex:
 	""" Creates a QueryIndex object and the associated index file
 	to go with it, or if an index file of the desired name already
@@ -34,10 +37,10 @@ class QueryIndex:
 	
 	Args:
 		name - name of the desired index
-		sourceLangDataFile - filename of a file containing data in the
-			source language.
-		targetLangDataFile - filename of a file containing data in the
-			target language.
+		recordFiles - filename pattern for files containing tfrecords 
+			with input and target values to be indexed.
+		vocabFile - filename of a file containing the vocabulary for
+			the tfrecord inputs and targets
 	"""
 
 	"""Data locations, replace with directory to respective language list
@@ -46,19 +49,22 @@ class QueryIndex:
 	Data format expected: translation pair per line in each document 
 	"""
 
-	def __init__(self,name, sourceLangDataFile, targLangDataFile):
+	def __init__(self,name, recordFiles, vocabFile):
 		if not os.path.exists("indexes"):
+			print "creating index dir"
 			os.mkdir("indexes")
 		self.schema = Schema(query=TEXT(stored=True), target=TEXT(stored=True))
 		if index.exists_in("indexes", indexname=name):
 			self.ix = index.open_dir("indexes", name)
 			
 		else:
-			if sourceLangDataFile == "" or targLangDataFile == "":
+			if recordFiles == "" or vocabFile == "":
 				print 'Cannot create index without data files. Please provide the file paths in configuration.json'
 			else:
 				self.ix = index.create_in("indexes", self.schema, indexname=name)
-				self.buildIndex(sourceLangDataFile,targLangDataFile)
+				records = self.getTfRecordsFromFiles(recordFiles)
+				self.createStringFilesFromTfRecords(records, vocabFile)
+				self.buildIndex(INPUTS_FILE,TARGETS_FILE)
 
 	
 	""" 
@@ -145,34 +151,54 @@ class QueryIndex:
 								"distance": (1.0/i.score)})
 			return matches
 
+	""" Returns a list of TFRecords given the data files.
+	Args:
+		files - path to data files (support wildcard pattern).
+				e.g. If you want all files in directory "./dir", then do "./dir/*"
+	"""
+	def getTfRecordsFromFiles(self, files):
+		import tensorflow as tf
+		import glob
+
+		filenames = glob.glob(files);
+		records = []
+
+		for filename in filenames:
+			print "reading file '%s'..." % filename
+			reader = tf.python_io.tf_record_iterator(filename)
+			for raw_record in reader:
+				record = tf.train.Example()
+				record.ParseFromString(raw_record)
+				
+				records.append(record)
+				if len(records) % 10000 == 0:
+					print "read: %d" % len(records)
+					break # TODO remove this line to load all records
+			break # TODO remove this line to load all files
+		return records
 
 
-""" Returns a list of TFRecords given the data files.
-Args:
-	files - path to data files (support wildcard pattern).
-			e.g. If you want all files in directory "./dir", then do "./dir/*"
-"""
-def getTfRecordsFromFiles(files=""):
-	import tensorflow as tf
-	import glob
-
-	if files is "":
-		files = "/home/osboxes/shared/cs130/project/t2t_data/*00" # TODO: parametize this
-
-	filenames = glob.glob(files);
-	records = []
-
-	for filename in filenames:
-		print "reading file '%s'..." % filename
-		reader = tf.python_io.tf_record_iterator(filename)
-		for raw_record in reader:
-			record = tf.train.Example()
-			record.ParseFromString(raw_record)
-			
-			records.append(record)
-			if len(records) % 10000 == 0:
-				print "read: %d" % len(records)
-				break # TODO remove this line to load all records
-		break # TODO remove this line to load all files
-
-	return records
+	def createStringFilesFromTfRecords(self, records, vocab):
+		f=open(vocab)
+		# TODO check if vocab file is always small enough to read into memory
+		lines = f.readlines()
+		input = ""
+		target = ""
+		inputs_file = open(INPUTS_FILE,"w+")
+		targets_file = open(TARGETS_FILE,"w+")
+		for record in records:
+			for i in record.features.feature["inputs"].int64_list.value:
+				if (i != 1): # remove <EOS> statements
+					# remove newlines, extraneous '' marks, and change _ to space.
+					input += lines[i].rstrip().replace("_", " ")[1:(len(lines[i])-2)]
+			for i in record.features.feature["targets"].int64_list.value:
+				if (i != 1): # remove <EOS> statements
+					# remove newlines, extraneous '' marks, and change _ to space.
+					target += lines[i].rstrip().replace("_", " ")[1:(len(lines[i])-2)]
+			inputs_file.write(input + "\n")
+			targets_file.write(target + "\n")
+			input = ""
+			target = ""
+		inputs_file.close()
+		targets_file.close()
+		f.close()

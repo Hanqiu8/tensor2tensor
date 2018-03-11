@@ -96,8 +96,8 @@ def main(_):
         "name": language["name"],
     }
 
-  source_language_data_file = configuration["source_language_data_file"]
-  target_language_data_file = configuration["target_language_data_file"]
+  tfrecord_files = configuration["tfrecord_files"]
+  vocab_file = configuration["vocab_file"]
 
   # Create flask to serve all paths starting with '/polymer' from the static
   # path.  This is to served non-vulcanized components.
@@ -142,7 +142,7 @@ def main(_):
   @app.route("/api/corpussearch/", methods=["GET"])
   def corpus_search():
     query = request.args.get("query")
-    query_index = indexing.QueryIndex("demoIndex", source_language_data_file, target_language_data_file)
+    query_index = indexing.QueryIndex("demoIndex", tfrecord_files, vocab_file)
     query_result = query_index.searchIndex(query)
 	
     return jsonify({

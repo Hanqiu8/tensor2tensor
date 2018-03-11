@@ -53,13 +53,13 @@ for the translate_ende_wmt32k problem would be:
     "code": "de",
     "name": "German"
   }],
-  "source_language_data_file": <path to data file with source language words/sentences>,
-  "target_language_data_file": <path to data file with target language words/sentences>
+  "tfrecord_files": <paths to tfrecord files, wildcard notation supported>,
+  "vocab_file": <path to vocab file with input and target words>
 }
 ```
 
 Replace the angle brackets with a string containing what is correct for you. 
-source_language_data_file and target_language_data_file allow you to use the 
+tfrecord_files and vocab_file allow you to use the 
 corpus search functionality. If this functionality is not required, simply 
 set the values to "".
 
@@ -77,8 +77,8 @@ served by a [GUnicorn](http://gunicorn.org/) HTTP Server.
 
 ## Corpus Search
 To see which training data might be associated with a given query, you can use
-the corpus search functionality. In the configuration.json, provide 2 files with
-the training data from the source and target languages. On the first query,
+the corpus search functionality. In the configuration.json, provide 2 filepaths with
+the tfrecords of the training data and the vocabulary file. On the first query,
 an index of the training data will be created and saved in an "indexes" folder,
 wherever the tensor2tensor-insights-server command is being run. This may require
 tensor2tensor-insights-server to be run with sudo. As long as the "indexes" folder
