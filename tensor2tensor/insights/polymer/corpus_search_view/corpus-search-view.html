@@ -134,7 +134,16 @@ limitations under the License.
         <paper-icon-button id="translate" on-tap="process_index_query_" icon="translate" title="translate">
         </paper-icon-button>
       </div>
-      
+
+      <!-- Searching for neural state-->
+      <div id="search-bar2" class="layout horizontal center-center">
+        <paper-input class="flex" value="{{nnquery_}}" label="search neural nets" id="nn_input">
+        </paper-input>
+        <iron-a11y-keys target="{{input}}" keys="enter" on-keys-pressed="process_neuralnet_index_query_">
+        </iron-a11y-keys>
+        <paper-icon-button id="translate" on-tap="process_neuralnet_index_query_" icon="translate" title="translate">
+        </paper-icon-button>
+      </div>
     </query-card-corpus> 
 
     <iron-ajax

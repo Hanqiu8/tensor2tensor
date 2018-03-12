@@ -149,6 +149,17 @@ def main(_):
         "result": query_result
     })
 
+
+  @app.route("/api/nncorpussearch/", methods=["GET"])
+  def nn_corpus_search():
+    # query = request.args.get("query")
+    # query_index = indexing.QueryIndex("demoIndex", source_language_data_file, target_language_data_file)
+    # query_result = query_index.searchIndex(query)
+  
+     return jsonify({
+         "result": "NOTHING YET"
+     })  
+
   @app.route("/debug", methods=["GET"])
   def query():  # pylint: disable=unused-variable
     """Responds to /debug with processing results.

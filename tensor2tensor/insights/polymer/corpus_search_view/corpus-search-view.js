@@ -57,6 +57,16 @@ class CorpusSearchView extends Polymer.Element {
     this.$.translateAjax.generateRequest();
   }
 
+  process_neuralnet_index_query_(){
+    console.log("process_neuralnet_index_query_: query="+window.encodeURIComponent(this.query_));
+
+    this.set('url', '/api/nncorpussearch?query='+window.encodeURIComponent(this.query_));
+    this.set('displayResult', false);
+    this.$.translateAjax.generateRequest();
+  
+
+  }
+
   handleQueryResponse_(event) {
     console.log("AJAX response: " + event.detail.response);
     console.log("query_: " + this.query_);

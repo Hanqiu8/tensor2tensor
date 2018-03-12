@@ -177,11 +177,18 @@ class ExploreView extends Polymer.Element {
    */
   handleTranslationResponse_(event) {
     this.set('fetchingResult', false);
+    console.log("AJAX response: " + event.detail.response);
+
     this.push('results', {
       response: event.detail.response,
       query: this.query_,
       model: this.model_,
     });
+    console.log(this.results)
+    
+
+
+
   }
 
   /**
