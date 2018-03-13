@@ -27,6 +27,8 @@ from whoosh.fields import *
 from whoosh.qparser import *
 from whoosh.collectors import TimeLimitCollector, TimeLimit
 
+from pyspark import SparkContext, SparkConf
+
 INPUTS_FILE = "inputs.txt"
 TARGETS_FILE = "targets.txt"
 
@@ -49,22 +51,59 @@ class QueryIndex:
 	Data format expected: translation pair per line in each document 
 	"""
 
+
+
 	def __init__(self,name, recordFiles, vocabFile):
-		if not os.path.exists("indexes"):
-			print "creating index dir"
-			os.mkdir("indexes")
-		self.schema = Schema(query=TEXT(stored=True), target=TEXT(stored=True))
-		if index.exists_in("indexes", indexname=name):
-			self.ix = index.open_dir("indexes", name)
-			
-		else:
-			if recordFiles == "" or vocabFile == "":
-				print 'Cannot create index without data files. Please provide the file paths in configuration.json'
+		def operate(recordFiles, vocabFile):
+			print "entered operate"
+			if not os.path.exists("indexes"):
+				print "creating index dir"
+				os.mkdir("indexes")
+			self.schema = Schema(query=TEXT(stored=True), target=TEXT(stored=True))
+			if index.exists_in("indexes", indexname=name):
+				self.ix = index.open_dir("indexes", name)
+				
 			else:
-				self.ix = index.create_in("indexes", self.schema, indexname=name)
-				records = self.getTfRecordsFromFiles(recordFiles)
-				self.createStringFilesFromTfRecords(records, vocabFile)
-				self.buildIndex(INPUTS_FILE,TARGETS_FILE)
+				if recordFiles == "" or vocabFile == "":
+					print 'Cannot create index without data files. Please provide the file paths in configuration.json'
+				else:
+					self.ix = index.create_in("indexes", self.schema, indexname=name)
+					records = self.getTfRecordsFromFiles(recordFiles)
+					self.createStringFilesFromTfRecords(records, vocabFile)
+					self.buildIndex(INPUTS_FILE,TARGETS_FILE)
+
+		spark_app_name = "spark_app"
+		self.conf = SparkConf().setAppName(spark_app_name).setMaster("local")
+		self.sc = SparkContext(conf=self.conf)
+
+		data = ["madam", "building"]
+		distData = self.sc.parallelize(data)
+		distData.map(operate(recordFiles, vocabFile))
+
+
+		operate(recordFiles, vocabFile)
+		self.sc.stop()
+
+		# distData = self.sc.parallelize(data)
+
+		# s = distData.reduce(lambda a, b: a + b)
+		# print s
+
+		# if not os.path.exists("indexes"):
+		# 	print "creating index dir"
+		# 	os.mkdir("indexes")
+		# self.schema = Schema(query=TEXT(stored=True), target=TEXT(stored=True))
+		# if index.exists_in("indexes", indexname=name):
+		# 	self.ix = index.open_dir("indexes", name)
+			
+		# else:
+		# 	if recordFiles == "" or vocabFile == "":
+		# 		print 'Cannot create index without data files. Please provide the file paths in configuration.json'
+		# 	else:
+		# 		self.ix = index.create_in("indexes", self.schema, indexname=name)
+		# 		records = self.getTfRecordsFromFiles(recordFiles)
+		# 		self.createStringFilesFromTfRecords(records, vocabFile)
+		# 		self.buildIndex(INPUTS_FILE,TARGETS_FILE)
 
 	
 	""" 
