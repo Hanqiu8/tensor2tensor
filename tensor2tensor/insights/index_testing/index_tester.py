@@ -165,7 +165,16 @@ print "Initialization test 3 passed."
 
 blank_index = ix.QueryIndex("blank", "", "./vocab.ende.32768")
 
-print "If you see an error message above, initialization test 4 passed. Otherwise, test failed."
+system_failed = False # True if the system throws an exception creating the index
+
+try:
+	blank_index.searchIndex("If this turns out alright, something has gone wrong")
+except AttributeError:
+	system_failed = True
+
+assert (system_failed), "Initialization test 4 for index blank failed"
+
+print "Initialization test 4 passed."
 
 """ Initialization test 5: When index is created with no TFrecord files matching the corresponding argument, it should be blank."""
 
@@ -195,7 +204,16 @@ print "Initialization test 6 passed."
 
 blank3_index = ix.QueryIndex("blank3", "./translate_ende_wmt32k-train-00001-of-00100", "")
 
-print "If you see an error message above, initialization test 7 passed. Otherwise, test failed."
+system_failed = False # True if the system throws an exception creating the index
+
+try:
+	blank3_index.searchIndex("If this turns out alright, something has gone wrong")
+except AttributeError:
+	system_failed = True
+
+assert (system_failed), "Initialization test 7 for index blank failed"
+
+print "Initialization test 7 passed."
 
 """ Initialization test 8: When index is created with a vocab file that is too small, the program should fail and throw an IndexError."""
 
@@ -223,6 +241,6 @@ assert (system_failed), "Initialization test 9 for index error3 failed"
 
 print "Initialization test 9 passed."
 
-print "All initialization tests finished - please review output."
+print "All initialization tests passed."
 
-print "All tests complete. As far as this testing program can tell, QueryIndex's implementation is functionally correct. Please review output to ensure this."
+print "All tests passed. QueryIndex's implementation is functionally correct."
