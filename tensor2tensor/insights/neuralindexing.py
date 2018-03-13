@@ -22,52 +22,10 @@ obtained from a translation model.
 
 
 import os, os.path
-import redis
 from whoosh import index
 from whoosh.fields import *
 from whoosh.qparser import *
 from whoosh.collectors import TimeLimitCollector, TimeLimit
-from nearpy import Engine
-from nearpy.hashes import RandomBinaryProjections
-from nearpy.storage import RedisStorage
-
-class GraphStateQueryIndex:
-
-	def __init__(self):
-		# if not os.path.exists("graphStateIndexes"):
-		# 	os.mkdir("graphStateIndexes")
-		redis_object = redis.Redis(host='localhost', port=6379, db=0)
-		redis_storage = RedisStorage(redis_object)
-
-		# Get hash config from redis
-		config = redis_storage.load_hash_configuration('MyHash')
-
-		if config is None:
-		# Config is not existing, create hash from scratch, with 5 projections
-			self.lshash = RandomBinaryProjections('MyHash', 5)
-		else:
-		# Config is existing, create hash with None parameters
-			self.lshash = RandomBinaryProjections(None, None)
-		# Apply configuration loaded from redis
-			self.lshash.apply_config(config)
-		# print("HERE")
-
-		# Create engine for feature space of 100 dimensions and use our hash.
-		# This will set the dimension of the lshash only the first time, not when
-		# using the configuration loaded from redis. Use redis storage to store
-		# buckets.
-		self.engine = Engine(4, lshashes=[self.lshash], storage=redis_storage)
-		redis_storage.store_hash_configuration(self.lshash)
-
-	def findMatch(self, v):
-		matches = self.engine.neighbours(v)
-		return matches
-
-	def addVector(self, v, trainingText):
-		self.engine.store_vector(v, trainingText)
-
-INPUTS_FILE = "inputs.txt"
-TARGETS_FILE = "targets.txt"
 
 class QueryIndex:
 	""" Creates a QueryIndex object and the associated index file
@@ -76,10 +34,10 @@ class QueryIndex:
 	
 	Args:
 		name - name of the desired index
-		recordFiles - filename pattern for files containing tfrecords 
-			with input and target values to be indexed.
-		vocabFile - filename of a file containing the vocabulary for
-			the tfrecord inputs and targets
+		sourceLangDataFile - filename of a file containing data in the
+			source language.
+		targetLangDataFile - filename of a file containing data in the
+			target language.
 	"""
 
 	"""Data locations, replace with directory to respective language list
@@ -88,22 +46,19 @@ class QueryIndex:
 	Data format expected: translation pair per line in each document 
 	"""
 
-	def __init__(self,name, recordFiles, vocabFile):
+	def __init__(self,name, sourceLangDataFile, targLangDataFile):
 		if not os.path.exists("indexes"):
-			print "creating index dir"
 			os.mkdir("indexes")
 		self.schema = Schema(query=TEXT(stored=True), target=TEXT(stored=True))
 		if index.exists_in("indexes", indexname=name):
 			self.ix = index.open_dir("indexes", name)
 			
 		else:
-			if recordFiles == "" or vocabFile == "":
+			if sourceLangDataFile == "" or targLangDataFile == "":
 				print 'Cannot create index without data files. Please provide the file paths in configuration.json'
 			else:
 				self.ix = index.create_in("indexes", self.schema, indexname=name)
-				records = self.getTfRecordsFromFiles(recordFiles)
-				self.createStringFilesFromTfRecords(records, vocabFile)
-				self.buildIndex(INPUTS_FILE,TARGETS_FILE)
+				self.buildIndex(sourceLangDataFile,targLangDataFile)
 
 	
 	""" 
@@ -189,55 +144,3 @@ class QueryIndex:
 								"targetlang": i["target"],
 								"distance": (1.0/i.score)})
 			return matches
-
-	""" Returns a list of TFRecords given the data files.
-	Args:
-		files - path to data files (support wildcard pattern).
-				e.g. If you want all files in directory "./dir", then do "./dir/*"
-	"""
-	def getTfRecordsFromFiles(self, files):
-		import tensorflow as tf
-		import glob
-
-		filenames = glob.glob(files);
-		records = []
-
-		for filename in filenames:
-			print "reading file '%s'..." % filename
-			reader = tf.python_io.tf_record_iterator(filename)
-			for raw_record in reader:
-				record = tf.train.Example()
-				record.ParseFromString(raw_record)
-				
-				records.append(record)
-				if len(records) % 10000 == 0:
-					print "read: %d" % len(records)
-					break # TODO remove this line to load all records
-			break # TODO remove this line to load all files
-		return records
-
-
-	def createStringFilesFromTfRecords(self, records, vocab):
-		f=open(vocab)
-		# TODO check if vocab file is always small enough to read into memory
-		lines = f.readlines()
-		input = ""
-		target = ""
-		inputs_file = open(INPUTS_FILE,"w+")
-		targets_file = open(TARGETS_FILE,"w+")
-		for record in records:
-			for i in record.features.feature["inputs"].int64_list.value:
-				if (i != 1): # remove <EOS> statements
-					# remove newlines, extraneous '' marks, and change _ to space.
-					input += lines[i].rstrip().replace("_", " ")[1:(len(lines[i])-2)]
-			for i in record.features.feature["targets"].int64_list.value:
-				if (i != 1): # remove <EOS> statements
-					# remove newlines, extraneous '' marks, and change _ to space.
-					target += lines[i].rstrip().replace("_", " ")[1:(len(lines[i])-2)]
-			inputs_file.write(input + "\n")
-			targets_file.write(target + "\n")
-			input = ""
-			target = ""
-		inputs_file.close()
-		targets_file.close()
-		f.close()

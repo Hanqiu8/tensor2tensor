@@ -125,6 +125,7 @@ class ExploreView extends Polymer.Element {
     }
 
     var params = {
+      // nnquery_ here below??
       'source': this.query_,
       'id': this.model_.id,
       'sl': this.model_.source_language.code,
@@ -177,11 +178,18 @@ class ExploreView extends Polymer.Element {
    */
   handleTranslationResponse_(event) {
     this.set('fetchingResult', false);
+    console.log("AJAX response: " + event.detail.response);
+
     this.push('results', {
       response: event.detail.response,
       query: this.query_,
       model: this.model_,
     });
+    console.log(this.results)
+    
+
+
+
   }
 
   /**
