@@ -22,49 +22,10 @@ obtained from a translation model.
 
 
 import os, os.path
-import redis
 from whoosh import index
 from whoosh.fields import *
 from whoosh.qparser import *
 from whoosh.collectors import TimeLimitCollector, TimeLimit
-from nearpy import Engine
-from nearpy.hashes import RandomBinaryProjections
-from nearpy.storage import RedisStorage
-
-class GraphStateQueryIndex:
-
-	def __init__(self):
-		# if not os.path.exists("graphStateIndexes"):
-		# 	os.mkdir("graphStateIndexes")
-		redis_object = redis.Redis(host='localhost', port=6379, db=0)
-		redis_storage = RedisStorage(redis_object)
-
-		# Get hash config from redis
-		config = redis_storage.load_hash_configuration('MyHash')
-
-		if config is None:
-		# Config is not existing, create hash from scratch, with 5 projections
-			self.lshash = RandomBinaryProjections('MyHash', 5)
-		else:
-		# Config is existing, create hash with None parameters
-			self.lshash = RandomBinaryProjections(None, None)
-		# Apply configuration loaded from redis
-			self.lshash.apply_config(config)
-		# print("HERE")
-
-		# Create engine for feature space of 100 dimensions and use our hash.
-		# This will set the dimension of the lshash only the first time, not when
-		# using the configuration loaded from redis. Use redis storage to store
-		# buckets.
-		self.engine = Engine(4, lshashes=[self.lshash], storage=redis_storage)
-		redis_storage.store_hash_configuration(self.lshash)
-
-	def findMatch(self, v):
-		matches = self.engine.neighbours(v)
-		return matches
-
-	def addVector(self, v, trainingText):
-		self.engine.store_vector(v, trainingText)
 
 class QueryIndex:
 	""" Creates a QueryIndex object and the associated index file

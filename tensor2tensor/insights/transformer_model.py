@@ -6,6 +6,7 @@ import shutil
 import time
 import json
 
+
 import numpy as np
 
 from tensor2tensor.bin import t2t_trainer
@@ -13,9 +14,15 @@ from tensor2tensor.data_generators import text_encoder
 from tensor2tensor.insights import graph
 from tensor2tensor.insights import nbest
 from tensor2tensor.insights import query_processor
+from tensor2tensor.insights import indexing
 from tensor2tensor.utils import decoding
 from tensor2tensor.utils import trainer_lib
 from tensor2tensor.utils import usr_dir
+from nearpy import Engine
+from nearpy.hashes import RandomBinaryProjections
+
+# from LocalitySensitiveHashing import *
+
 
 # from tensor2tensor.visualization import visualization
 
@@ -24,6 +31,7 @@ from tensorflow.python import debug as tfdbg
 
 flags = tf.flags
 FLAGS = flags.FLAGS
+GRAPH_STATE_NODE_CAPTURE_NUM = 4
 
 
 def topk_watch_fn(feeds, fetches):
@@ -163,6 +171,7 @@ class TransformerModel(query_processor.QueryProcessor):
     # the beam scores.  Afterwards we align the two sets of values to create the
     # full graph vertices and edges.
     decoding_graph = graph.Graph()
+    
     run_dirs = sorted(glob.glob(os.path.join(hook_dir, "run_*")))
     for run_dir in run_dirs:
       # Record the different completed and active beam sequence ids.
@@ -233,6 +242,7 @@ class TransformerModel(query_processor.QueryProcessor):
     }
 
     return graph_vis
+    # return decoding_graph
 
 
   def get_processing_vis(self, query, output_ids):
@@ -297,6 +307,32 @@ class TransformerModel(query_processor.QueryProcessor):
 
     return nbest_vis
 
+  def graph_get_state_process(self, query):
+    hook_dir, result = self.process_translation(query)
+
+    graph_vis = self.get_graph_vis(hook_dir)
+    
+    shutil.rmtree(hook_dir)
+
+    top_edges = []
+    for i in range(GRAPH_STATE_NODE_CAPTURE_NUM):
+      top_edges.append(graph_vis["search_graph"]["edge"][i]["data"]["score"])
+    v = np.array(top_edges)
+    # w = v
+    # for i in range(4):
+    #   w[i] = w[i] + 0.004
+
+    graphIndexer = indexing.GraphStateQueryIndex()
+    graphIndexer.addVector(v, query)
+
+    M = graphIndexer.findMatch(v)
+    if len(M) > 0:
+      print "FOUND"
+      print M
+    return {
+        "result": "TODO: Return match when found"
+    }
+
   def process(self, query):
     """Returns the visualizations for query.
     Args:
@@ -323,6 +359,7 @@ class TransformerModel(query_processor.QueryProcessor):
 
     # Generate processing visualization
     processing_vis = self.get_processing_vis(query, output_ids)
+    # return graph_vis
 
     return {
         "result": [processing_vis, graph_vis, nbest_vis],

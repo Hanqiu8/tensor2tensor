@@ -125,6 +125,7 @@ class ExploreView extends Polymer.Element {
     }
 
     var params = {
+      // nnquery_ here below??
       'source': this.query_,
       'id': this.model_.id,
       'sl': this.model_.source_language.code,

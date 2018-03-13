@@ -152,12 +152,19 @@ def main(_):
 
   @app.route("/api/nncorpussearch/", methods=["GET"])
   def nn_corpus_search():
-    # query = request.args.get("query")
+    nnquery = request.args.get("query")
+    source_language = request.args.get("sl")
+    target_language = request.args.get("tl")
+    model_name = request.args.get("id")
+    # processor = processors[(source_language, target_language, model_name)]
+    processor = processors[('en', 'de', 'transformers_wmt32k')]
+    
+    # return processor.graph_process(nnquery)
     # query_index = indexing.QueryIndex("demoIndex", source_language_data_file, target_language_data_file)
     # query_result = query_index.searchIndex(query)
   
-     return jsonify({
-         "result": "NOTHING YET"
+    return jsonify({
+         "result": processor.graph_get_state_process(nnquery)
      })  
 
   @app.route("/debug", methods=["GET"])
