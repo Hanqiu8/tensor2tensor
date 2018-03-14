@@ -85,6 +85,21 @@ tensor2tensor-insights-server to be run with sudo. As long as the "indexes" fold
 is not removed, this index will be used automatically in future runtimes of the 
 server, and will not need to be recreated.
 
+## Neural Network Search
+IN PROGRESS: The second search bar in the Corpus Search tab allows the user to enter 
+a query and search for tensors that have similar representation as the query. 
+
+In order to set it up, a redis server must be launched to store the data. Currently, 
+the indexes are generated dynamically, but they should eventually be indexed before-hand. 
+Download [redis](https://redis.io/) and start the server by running:
+
+```
+redis-server
+```
+
+Note: The Neural Network Search is currently hardcoded to only work when translating
+from English to German and when the model's label is "transformers_wmt32k"
+
 ## Features to be developed
 
 This is a minimal web server.  We are in the process of adding additional
