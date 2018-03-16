@@ -328,7 +328,7 @@ class TransformerModel(query_processor.QueryProcessor):
     for match in M:
       foundMatches.append({"vector": match[0].tolist(),
                             "textInstance": match[1],
-                            "distance": match[2]})
+                            "tensordistance": match[2]})
 
     if len(M) > 0:
       print "FOUND MATCH:", foundMatches
