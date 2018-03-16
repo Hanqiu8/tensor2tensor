@@ -243,4 +243,4 @@ print "Initialization test 9 passed."
 
 print "All initialization tests passed."
 
-print "All tests passed. QueryIndex's implementation is functionally correct."
+print "All tests passed. GraphStateQuery Index's and QueryIndex's implementation is functionally correct."

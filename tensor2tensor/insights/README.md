@@ -11,7 +11,7 @@ Before using the Insights server, you must install [Bower](https://bower.io/)
 which we use to manage our web component dependencies.  You can easily install
 this with the [Node Package Manager](https://www.npmjs.com/).
 
-You must install [Whoosh](https://pypi.python.org/pypi/Whoosh/), which can be achieved by `pip install whoosh`
+You must install [Whoosh](https://pypi.python.org/pypi/Whoosh/), which can be achieved by `pip install whoosh` along with [NearPY](https://github.com/pixelogik/NearPy)
 
 ## Setup Instructions
 
@@ -89,6 +89,9 @@ server, and will not need to be recreated.
 IN PROGRESS: The second search bar in the Corpus Search tab allows the user to enter 
 a query and search for tensors that have similar representation as the query. 
 
+Currently, index values are added in dynamically as queries (which is why each
+query will always return itself)
+
 In order to set it up, a redis server must be launched to store the data. Currently, 
 the indexes are generated dynamically, but they should eventually be indexed before-hand. 
 Download [redis](https://redis.io/) and start the server by running:
@@ -97,8 +100,8 @@ Download [redis](https://redis.io/) and start the server by running:
 redis-server
 ```
 
-Note: The Neural Network Search is currently hardcoded to only work when translating
-from English to German and when the model's label is "transformers_wmt32k"
+Note: The Neural Network Search only works when translating
+from English to German
 
 ## Features to be developed
 
