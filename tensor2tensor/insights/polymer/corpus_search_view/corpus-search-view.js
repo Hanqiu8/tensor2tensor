@@ -48,6 +48,8 @@ class CorpusSearchView extends Polymer.Element {
       }
     };
   }
+
+
   createBodyValue_(params) {
     // Add the key value body parts.
     var bodyParts = [];
@@ -56,20 +58,6 @@ class CorpusSearchView extends Polymer.Element {
       // console.log(value)
       bodyParts.push(param + "=" + value);
     }
-    return bodyParts
-
-    // Add the rapid response rules.
-    // for (var i = 0; i < this.rules_.length; ++i) {
-    //   var rule = this.rules_[i];
-    //   var value =
-    //     'src_lang: "' + this.model_.source_language.code + '" ' +
-    //     'trg_lang: "' + this.model_.target_language.code + '" ' +
-    //     'source: "' + rule['source'] + '" ' +
-    //     'bad_translations: "' + rule.bad_translations + '" ' +
-    //     'good_translations: "' + rule.good_translations + '" ' +
-    //     'attention_threshold: ' + rule.attention_threshold;
-    //   bodyParts.push('rule=' + window.encodeURIComponent(value));
-    // }
 
     // Combine everything together.
     return bodyParts.join('&');
@@ -83,6 +71,13 @@ class CorpusSearchView extends Polymer.Element {
     this.$.translateAjax.generateRequest();
   }
 
+  clear_index_(){
+   console.log("Clearing index")
+    this.set('url', '/api/cleartensorindex');
+    this.$.translateAjax.generateRequest();
+
+  }
+
   process_neuralnet_index_query_(){
     console.log("process_neuralnet_index_query_: query="+window.encodeURIComponent(this.nnquery_));
 
@@ -94,10 +89,8 @@ class CorpusSearchView extends Polymer.Element {
     };
     
     var paramList = this.createBodyValue_(params)
-    console.log(paramList)
-    // this.set('url', '/api/nncorpussearch?query='+window.encodeURIComponent(this.nnquery_));
-    this.set('url', '/api/nncorpussearch?'+ paramList);
 
+    this.set('url', '/api/nncorpussearch?'+ paramList);
     this.set('displayResult', false);
     this.$.translateAjax.generateRequest();
   
@@ -116,26 +109,6 @@ class CorpusSearchView extends Polymer.Element {
     this.set('displayResult', true);
 
     console.log(this.result_.response);
-    // console.log("=======response handling here=======");
-    
-    // console.log("AJAX response: " + event.detail.response);
-
-    // this.push('result_', {
-    //   response: event.detail.response,
-    //   query: this.query_,
-    //   // model: this.model_,
-    // });
-    // // console.log(event.detail.response.result);
-    // // console.log(event.detail.response.resulted["search_graph"]);
-    // // console.log("AJAX response: " + event.detail.response);
-    // // console.log("query_: " + this.nnquery_);
-    // // this.set('result_', {
-    // //   response: event.detail.response,
-    // //   query: this.nnquery_,
-    // // });
-    // this.set('displayResult', true);
-
-    // console.log(this.result_.response);
 
 }
 

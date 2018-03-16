@@ -307,6 +307,7 @@ class TransformerModel(query_processor.QueryProcessor):
 
     return nbest_vis
 
+  # Returns the tensor indexing information
   def graph_get_state_process(self, query):
     hook_dir, result = self.process_translation(query)
 
@@ -318,20 +319,20 @@ class TransformerModel(query_processor.QueryProcessor):
     for i in range(GRAPH_STATE_NODE_CAPTURE_NUM):
       top_edges.append(graph_vis["search_graph"]["edge"][i]["data"]["score"])
     v = np.array(top_edges)
-    # w = v
-    # for i in range(4):
-    #   w[i] = w[i] + 0.004
 
     graphIndexer = indexing.GraphStateQueryIndex()
     graphIndexer.addVector(v, query)
 
     M = graphIndexer.findMatch(v)
+    foundMatches = []
+    for match in M:
+      foundMatches.append({"vector": match[0].tolist(),
+                            "textInstance": match[1],
+                            "distance": match[2]})
+
     if len(M) > 0:
-      print "FOUND"
-      print M
-    return {
-        "result": "TODO: Return match when found"
-    }
+      print "FOUND MATCH:", foundMatches
+    return foundMatches
 
   def process(self, query):
     """Returns the visualizations for query.

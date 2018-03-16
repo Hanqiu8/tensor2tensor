@@ -156,16 +156,27 @@ def main(_):
     source_language = request.args.get("sl")
     target_language = request.args.get("tl")
     model_name = request.args.get("id")
-    # processor = processors[(source_language, target_language, model_name)]
-    processor = processors[('en', 'de', 'transformers_wmt32k')]
-    
-    # return processor.graph_process(nnquery)
-    # query_index = indexing.QueryIndex("demoIndex", source_language_data_file, target_language_data_file)
-    # query_result = query_index.searchIndex(query)
-  
+    processor = processors[(source_language, target_language, model_name)]
+      
     return jsonify({
          "result": processor.graph_get_state_process(nnquery)
-     })  
+     })
+
+  @app.route("/api/cleartensorindex/", methods=["GET"])
+  def clear_tensor_index():
+    # source_language = request.args.get("sl")
+    # target_language = request.args.get("tl")
+    # model_name = request.args.get("id")
+    # processor = processors[(source_language, target_language, model_name)]
+    
+    graphIndexer = indexing.GraphStateQueryIndex()
+    graphIndexer.clearIndex()
+
+    return jsonify({
+         "result": "Cleared"
+     })
+
+
 
   @app.route("/debug", methods=["GET"])
   def query():  # pylint: disable=unused-variable

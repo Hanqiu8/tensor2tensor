@@ -34,8 +34,6 @@ from nearpy.storage import RedisStorage
 class GraphStateQueryIndex:
 
 	def __init__(self):
-		# if not os.path.exists("graphStateIndexes"):
-		# 	os.mkdir("graphStateIndexes")
 		redis_object = redis.Redis(host='localhost', port=6379, db=0)
 		redis_storage = RedisStorage(redis_object)
 
@@ -65,6 +63,12 @@ class GraphStateQueryIndex:
 
 	def addVector(self, v, trainingText):
 		self.engine.store_vector(v, trainingText)
+
+	def clearIndex(self):
+		self.engine.clean_all_buckets()
+
+	def clearHashInstance(self, name):
+		self.engine.clean_buckets(name)
 
 class QueryIndex:
 	""" Creates a QueryIndex object and the associated index file

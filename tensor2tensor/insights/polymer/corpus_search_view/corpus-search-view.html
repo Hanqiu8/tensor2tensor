@@ -137,14 +137,21 @@ limitations under the License.
 
       <!-- Searching for neural state-->
       <div id="search-bar2" class="layout horizontal center-center">
-        <paper-input class="flex" value="{{nnquery_}}" label="search neural nets" id="nn_input">
+        <paper-input class="flex" value="{{nnquery_}}" label="search tensors" id="nn_input">
         </paper-input>
         <iron-a11y-keys target="{{nninput}}" keys="enter" on-keys-pressed="process_neuralnet_index_query_">
         </iron-a11y-keys>
         <paper-icon-button id="translates" on-tap="process_neuralnet_index_query_" icon="translate" title="translate">
         </paper-icon-button>
       </div>
+
+      <div class="layout horizontal center-center"> 
+        Clear Tensor Index  
+        <paper-icon-button id="clear" on-tap="clear_index_" icon="clear" title="clear_index">
+        </paper-icon-button></div>
     </query-card-corpus> 
+
+
 
     <iron-ajax
 		id="translateAjax"
@@ -174,6 +181,31 @@ limitations under the License.
         </div>
       </div>
     </paper-card>
+<!-- Tensor indexing output -->
+    <paper-card>
+      <div id="corpus-result" class="content layout horizontal center-center flex">
+        <div id="result-list">
+          <h4>Tensor Search Results</h4>
+          <table>
+            <tr>
+              <th>Training Text</th>
+              <th>Tensor</th>
+              <th>Distance</th>
+            </tr>
+
+            <template is="dom-repeat" items="{{result_.response.result}}">
+              <tr>
+                <td>{{item.textInstance}}</td>
+                <td>{{item.vector}}</td>
+                <td>{{item.distance}}</td>
+
+              </tr>
+            </template>
+          </table>
+        </div>
+      </div>
+    </paper-card>
+
 
   </template>
   <script src="corpus-search-view.js"></script>
