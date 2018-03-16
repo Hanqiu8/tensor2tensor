@@ -169,12 +169,14 @@ limitations under the License.
             <tr>
               <th>Source Language</th>
               <th>Target Language</th>
+              <th>Distance</th>
             </tr>
 
             <template is="dom-repeat" items="{{result_.response.result}}">
               <tr>
                 <td>{{item.sourcelang}}</td>
                 <td>{{item.targetlang}}</td>
+                <td>{{item.distance}}</td>
               </tr>
             </template>
           </table>
